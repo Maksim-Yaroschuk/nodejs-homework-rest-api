@@ -1,46 +1,28 @@
 const express = require("express");
-const db = require("../../models/contacts");
+const {
+  postAddContact,
+  putChangeContact,
+  getContacts,
+  getContactByID,
+  deleteContact,
+} = require("../../controllers/contactsControllers");
+
+const {
+  addContactSchema,
+  changeContactSchema,
+} = require("../middleware/validationSchemes");
+const { validation } = require("../middleware/validationBody");
 
 const router = express.Router();
 
-router.get("/", async (req, res, next) => {
-  res.json({
-    status: "success",
-    code: 200,
-    data: await db.listContacts(),
-  });
-});
+router.get("/", getContacts);
 
-router.get("/:contactId", async (req, res, next) => {
-  res.json({
-    status: "success",
-    code: 200,
-    data: await db.getContactById(req.params.contactId),
-  });
-});
+router.get("/:contactId", getContactByID);
 
-router.post("/", async (req, res, next) => {
-  res.json({
-    status: "success",
-    code: 200,
-    data: await db.addContact(req.body),
-  });
-});
+router.post("/", validation(addContactSchema), postAddContact);
 
-router.delete("/:contactId", async (req, res, next) => {
-  res.json({
-    status: "deleted",
-    code: 204,
-    data: await db.removeContact(req.params.contactId),
-  });
-});
+router.delete("/:contactId", deleteContact);
 
-router.put("/:contactId", async (req, res, next) => {
-  res.json({
-    status: "success",
-    code: 200,
-    data: await db.updateContact(req.params.contactId, req.body),
-  });
-});
+router.put("/:contactId", validation(changeContactSchema), putChangeContact);
 
 module.exports = router;
