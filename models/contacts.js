@@ -49,7 +49,7 @@ const addContact = async (body) => {
       phone,
     };
     const list = await listContacts();
-    const newContacts = list.push(contact);
+    const newContacts = [...list, contact];
     await fs.writeFile(contactsPath, JSON.stringify(newContacts));
     return contact;
   } catch (error) {
@@ -65,6 +65,8 @@ const updateContact = async (contactId, body) => {
     contact.name = name;
     contact.email = email;
     contact.phone = phone;
+    const newContacts = [...list];
+    await fs.writeFile(contactsPath, JSON.stringify(newContacts));
     return contact;
   } catch (error) {
     console.log(error.message);
