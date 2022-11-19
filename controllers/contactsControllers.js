@@ -6,6 +6,19 @@ const {
   updateContact,
 } = require("../models/contacts");
 
+const { Contact } = require("../models/contacts");
+
+const getAllContacts = async (req, res, next) => {
+  try {
+    const contacts = await Contact.find({});
+    return res.json({
+      data: contacts,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const getContacts = async (req, res) => {
   const data = await listContacts();
   res.status(200).json({ message: data });
@@ -60,4 +73,6 @@ module.exports = {
   getContacts,
   getContactByID,
   deleteContact,
+
+  getAllContacts,
 };

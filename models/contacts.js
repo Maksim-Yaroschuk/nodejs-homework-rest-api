@@ -2,12 +2,34 @@ const fs = require("fs/promises");
 const path = require("path");
 const { nanoid } = require("nanoid");
 
+const { Schema, model } = require("mongoose");
+
+const contactSchema = new Schema({
+  name: {
+    type: String,
+    required: [true, "Set name for contact"],
+  },
+  email: {
+    type: String,
+  },
+  phone: {
+    type: String,
+  },
+  favorite: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+const Contact = model("contact" , contactSchema)
+
 const contactsPath = path.join(__dirname, "contacts.json");
 
 const listContacts = async () => {
   try {
-    const list = await fs.readFile(contactsPath, "utf8");
-    const contacts = JSON.parse(list);
+    const contacts = await Contact.find({});
+    // const list = await fs.readFile(contactsPath, "utf8");
+    // const contacts = JSON.parse(list);
     return contacts;
   } catch (error) {
     console.log(error.message);
@@ -79,4 +101,5 @@ module.exports = {
   removeContact,
   addContact,
   updateContact,
+  Contact,
 };
