@@ -2,9 +2,10 @@ const express = require("express");
 const {
   postAddContact,
   putChangeContact,
-  getContacts,
+  // getContacts,
   getContactByID,
   deleteContact,
+  getAllContacts,
 } = require("../../controllers/contactsControllers");
 
 const {
@@ -15,7 +16,7 @@ const { validation } = require("../middleware/validationBody");
 
 const router = express.Router();
 
-router.get("/", getContacts);
+router.get("/", getAllContacts);
 
 router.get("/:contactId", getContactByID);
 
