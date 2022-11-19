@@ -9,14 +9,10 @@ const {
 const { Contact } = require("../models/contacts");
 
 const getAllContacts = async (req, res, next) => {
-  try {
-    const contacts = await Contact.find({});
-    return res.status(200).json({
-      message: contacts,
-    });
-  } catch (error) {
-    next(error);
-  }
+  const contacts = await Contact.find({});
+  return res.status(200).json({
+    message: contacts,
+  });
 };
 
 const getContacts = async (req, res) => {

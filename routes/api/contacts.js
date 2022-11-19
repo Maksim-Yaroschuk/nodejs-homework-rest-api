@@ -8,6 +8,8 @@ const {
   getAllContacts,
 } = require("../../controllers/contactsControllers");
 
+const { tryCatchWrapper } = require("../../helpers");
+
 const {
   addContactSchema,
   changeContactSchema,
@@ -16,7 +18,7 @@ const { validation } = require("../middleware/validationBody");
 
 const router = express.Router();
 
-router.get("/", getAllContacts);
+router.get("/", tryCatchWrapper(getAllContacts));
 
 router.get("/:contactId", getContactByID);
 
