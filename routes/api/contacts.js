@@ -5,6 +5,7 @@ const {
   addContact,
   removeContactById,
   updateContact,
+  updateContactStatus,
 } = require("../../controllers/contactsControllers");
 
 const { tryCatchWrapper } = require("../../helpers");
@@ -26,5 +27,7 @@ router.post("/", validation(addContactSchema), tryCatchWrapper(addContact));
 router.delete("/:contactId", tryCatchWrapper(removeContactById));
 
 router.put("/:contactId", validation(changeContactSchema), tryCatchWrapper(updateContact));
+
+router.put("/:contactId/favorite", tryCatchWrapper(updateContactStatus));
 
 module.exports = router;

@@ -32,11 +32,25 @@ const getContactByID = async (req, res, next) => {
 };
 
 const updateContact = async (req, res, next) => {
-    const { contactId } = req.params;
+  const { contactId } = req.params;
   const contact = await Contact.findById(contactId);
   if (contact) {
     await Contact.findByIdAndUpdate(contactId, req.body);
     return res.status(200).json({ message: `${contact.name} was updated` });
+  }
+  return res.status(404).json({ message: "Contact not found" });
+};
+
+const updateContactStatus = async (req, res, next) => {
+  const { contactId } = req.params;
+  const { favorite } = req.body;
+  const contact = await Contact.findById(contactId);
+  if (favorite === undefined) {
+    return res.status(400).json({ message: "Missing field favorite" });
+  }
+  if (contact) {
+    const updatedContact = await Contact.findByIdAndUpdate(contactId, { favorite }, { new: true });
+    return res.status(200).json({ message: updatedContact });
   }
   return res.status(404).json({ message: "Contact not found" });
 };
@@ -47,4 +61,5 @@ module.exports = {
   removeContactById,
   getContactByID,
   updateContact,
+  updateContactStatus,
 };
