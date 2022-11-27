@@ -1,9 +1,9 @@
 const validation = (schema) => {
-  return function (req, res, next) {
-    const validateBody = schema.validate(req.body);
-    if (validateBody.error) {
-      res.status(400).json({ message: "missing required name field" });
-      next(validateBody.error);
+  return (req, res, next) => {
+    const { error } = schema.validate(req.body);
+    if (error) {
+      res.status(400).json({ message: error.message });
+      next(error);
     }
     next();
   };

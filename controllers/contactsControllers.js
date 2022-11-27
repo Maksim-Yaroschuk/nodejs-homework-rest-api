@@ -1,4 +1,5 @@
 const { Contact } = require("../models/contacts");
+const {createNotFoundError} = require("../helpers")
 
 const getAllContacts = async (req, res, next) => {
   const contacts = await Contact.find({});
@@ -14,12 +15,11 @@ const addContact = async (req, res, next) => {
 
 const removeContactById = async (req, res, next) => {
   const { contactId } = req.params;
-  const contact = await Contact.findById(contactId);
-  if (contact) {
-    await Contact.findByIdAndDelete(contactId);
-    return res.status(200).json({ message: `${contact.name} deleted` });
+  const result = await Contact.findByIdAndDelete(contactId);
+  if (result) {  
+    return res.status(200).json({ message: `${result.name} deleted` });
   }
-  return res.status(404).json({ message: "Contact not found" });
+  return next(createNotFoundError());
 };
 
 const getContactByID = async (req, res, next) => {
@@ -28,7 +28,7 @@ const getContactByID = async (req, res, next) => {
   if (contact) {
     return res.status(200).json({ message: contact });
   }
-  return res.status(404).json({ message: "Contact not found" });
+  return next(createNotFoundError());
 };
 
 const updateContact = async (req, res, next) => {
@@ -38,7 +38,7 @@ const updateContact = async (req, res, next) => {
     await Contact.findByIdAndUpdate(contactId, req.body);
     return res.status(200).json({ message: `${contact.name} was updated` });
   }
-  return res.status(404).json({ message: "Contact not found" });
+  return next(createNotFoundError());
 };
 
 const updateContactStatus = async (req, res, next) => {
@@ -52,7 +52,7 @@ const updateContactStatus = async (req, res, next) => {
     const updatedContact = await Contact.findByIdAndUpdate(contactId, { favorite }, { new: true });
     return res.status(200).json({ message: updatedContact });
   }
-  return res.status(404).json({ message: "Contact not found" });
+  return next(createNotFoundError());
 };
 
 module.exports = {
