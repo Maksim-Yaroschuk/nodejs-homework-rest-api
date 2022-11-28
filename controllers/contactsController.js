@@ -1,4 +1,4 @@
-const { Contact } = require("../models/contacts");
+const { Contact } = require("../models/contactsModel");
 const {createNotFoundError} = require("../helpers")
 
 const getAllContacts = async (req, res, next) => {

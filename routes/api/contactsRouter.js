@@ -6,7 +6,7 @@ const {
   removeContactById,
   updateContact,
   updateContactStatus,
-} = require("../../controllers/contactsControllers");
+} = require("../../controllers/contactsController");
 
 const { tryCatchWrapper } = require("../../helpers");
 
