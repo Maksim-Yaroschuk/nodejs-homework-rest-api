@@ -13,6 +13,7 @@ const { tryCatchWrapper } = require("../../helpers");
 const {
   addContactSchema,
   changeContactSchema,
+  updateStatusContactSchema,
 } = require("../middleware/validationSchemes");
 const { validation } = require("../middleware/validationBody");
 
@@ -26,8 +27,16 @@ router.post("/", validation(addContactSchema), tryCatchWrapper(addContact));
 
 router.delete("/:contactId", tryCatchWrapper(removeContactById));
 
-router.put("/:contactId", validation(changeContactSchema), tryCatchWrapper(updateContact));
+router.put(
+  "/:contactId",
+  validation(changeContactSchema),
+  tryCatchWrapper(updateContact)
+);
 
-router.put("/:contactId/favorite", tryCatchWrapper(updateContactStatus));
+router.put(
+  "/:contactId/favorite",
+  validation(updateStatusContactSchema),
+  tryCatchWrapper(updateContactStatus)
+);
 
 module.exports = router;

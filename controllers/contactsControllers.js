@@ -1,5 +1,5 @@
 const { Contact } = require("../models/contacts");
-const {createNotFoundError} = require("../helpers")
+const { createNotFoundError } = require("../helpers");
 
 const getAllContacts = async (req, res, next) => {
   const contacts = await Contact.find({});
@@ -16,7 +16,7 @@ const addContact = async (req, res, next) => {
 const removeContactById = async (req, res, next) => {
   const { contactId } = req.params;
   const result = await Contact.findByIdAndDelete(contactId);
-  if (result) {  
+  if (result) {
     return res.status(200).json({ message: `${result.name} deleted` });
   }
   return next(createNotFoundError());
@@ -45,11 +45,12 @@ const updateContactStatus = async (req, res, next) => {
   const { contactId } = req.params;
   const { favorite } = req.body;
   const contact = await Contact.findById(contactId);
-  if (favorite === undefined) {
-    return res.status(400).json({ message: "Missing field favorite" });
-  }
   if (contact) {
-    const updatedContact = await Contact.findByIdAndUpdate(contactId, { favorite }, { new: true });
+    const updatedContact = await Contact.findByIdAndUpdate(
+      contactId,
+      { favorite },
+      { new: true }
+    );
     return res.status(200).json({ message: updatedContact });
   }
   return next(createNotFoundError());
