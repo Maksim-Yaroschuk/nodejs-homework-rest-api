@@ -33,10 +33,9 @@ const getContactByID = async (req, res, next) => {
 
 const updateContact = async (req, res, next) => {
   const { contactId } = req.params;
-  const contact = await Contact.findById(contactId);
-  if (contact) {
-    await Contact.findByIdAndUpdate(contactId, req.body);
-    return res.status(200).json({ message: `${contact.name} was updated` });
+  const result = await Contact.findByIdAndUpdate(contactId, req.body);
+  if (result) {
+    return res.status(200).json({ message: `${result.name} was updated` });
   }
   return next(createNotFoundError());
 };
@@ -44,9 +43,12 @@ const updateContact = async (req, res, next) => {
 const updateContactStatus = async (req, res, next) => {
   const { contactId } = req.params;
   const { favorite } = req.body;
-  const contact = await Contact.findById(contactId);
-  if (contact) {
-    const updatedContact = await Contact.findByIdAndUpdate(contactId, { favorite }, { new: true });
+  const updatedContact = await Contact.findByIdAndUpdate(
+    contactId,
+    { favorite },
+    { new: true }
+  );
+  if (updatedContact) {
     return res.status(200).json({ message: updatedContact });
   }
   return next(createNotFoundError());

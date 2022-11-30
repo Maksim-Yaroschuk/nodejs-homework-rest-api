@@ -1,5 +1,9 @@
 const { User } = require("../models/usersModel");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
+const { JWT_SECRET } = process.env;
+// const { use } = require("../routes/api/authRouter");
 
 const userSignup = async (req, res, next) => {
   const { email, password } = req.body;
@@ -29,7 +33,27 @@ const getAllUsers = async (req, res, next) => {
   });
 };
 
+const userLogin = async (req, res, next) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(401).json({ message: "Email or password is wrong" });
+  }
+  const isPasswordCorrect = await bcrypt.compare(password, user.password);
+  if (!isPasswordCorrect) {
+    return res.status(401).json({ message: "Email or password is wrong" });
+  }
+  return res.status(200).json({
+    token: jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "15m" }),
+    user: {
+      email,
+      subscription: user.subscription,
+    },
+  });
+};
+
 module.exports = {
   userSignup,
   getAllUsers,
+  userLogin,
 };
