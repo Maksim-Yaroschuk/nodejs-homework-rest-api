@@ -34,8 +34,8 @@ const removeContactById = async (req, res, next) => {
 const getContactByID = async (req, res, next) => {
   const { contactId } = req.params;
   const { _id } = req.user;
-  const contact = await Contact.findById(contactId, { owner: _id });
-  if (contact) {
+  const contact = await Contact.findById(contactId);
+  if (String(contact.owner) === String(_id)) {
     return res.status(200).json({ message: contact });
   }
   return next(createNotFoundError());
