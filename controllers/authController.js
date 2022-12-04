@@ -1,9 +1,10 @@
 const { User } = require("../models/usersModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
+dotenv.config();
 
 const { JWT_SECRET } = process.env;
-// const { use } = require("../routes/api/authRouter");
 
 const userSignup = async (req, res, next) => {
   const { email, password } = req.body;
@@ -43,17 +44,43 @@ const userLogin = async (req, res, next) => {
   if (!isPasswordCorrect) {
     return res.status(401).json({ message: "Email or password is wrong" });
   }
+  const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "15m" });
+  user.token = token;
+  await User.findByIdAndUpdate(user._id, user);
   return res.status(200).json({
-    token: jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "15m" }),
+    token: user.token,
     user: {
-      email,
+      email: user.email,
       subscription: user.subscription,
     },
   });
+};
+
+const userLogout = async (req, res, next) => {
+  const { user } = req;
+  user.token = null;
+  await User.findByIdAndUpdate(user._id, user);
+
+  return res.status(204).json({});
+};
+
+const userCurrent = async (req, res, next) => {
+  const { user } = req;
+  if (user) {
+    await User.findOne(user._id);
+
+    return res.status(200).json({
+      email: user.email,
+      subscription: user.subscription,
+    });
+  }
+  return res.status(401).json({ message: "Not authorized" });
 };
 
 module.exports = {
   userSignup,
   getAllUsers,
   userLogin,
+  userLogout,
+  userCurrent,
 };

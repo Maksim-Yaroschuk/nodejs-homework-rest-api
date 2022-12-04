@@ -16,19 +16,20 @@ const {
   updateStatusContactSchema,
 } = require("../middleware/validationSchemes");
 const { validation } = require("../middleware/validationBody");
+const {auth} = require("../middleware/auth")
 
 const router = express.Router();
 
-router.get("/", tryCatchWrapper(getAllContacts));
+router.get("/", tryCatchWrapper(auth), tryCatchWrapper(getAllContacts));
 
-router.get("/:contactId", tryCatchWrapper(getContactByID));
+router.get("/:contactId", tryCatchWrapper(auth), tryCatchWrapper(getContactByID));
 
-router.post("/", validation(addContactSchema), tryCatchWrapper(addContact));
+router.post("/", tryCatchWrapper(auth), validation(addContactSchema), tryCatchWrapper(addContact));
 
-router.delete("/:contactId", tryCatchWrapper(removeContactById));
+router.delete("/:contactId", tryCatchWrapper(auth), tryCatchWrapper(removeContactById));
 
-router.put("/:contactId", validation(changeContactSchema), tryCatchWrapper(updateContact));
+router.put("/:contactId", tryCatchWrapper(auth), validation(changeContactSchema), tryCatchWrapper(updateContact));
 
-router.put("/:contactId/favorite", validation(updateStatusContactSchema), tryCatchWrapper(updateContactStatus));
+router.put("/:contactId/favorite", tryCatchWrapper(auth), validation(updateStatusContactSchema), tryCatchWrapper(updateContactStatus));
 
 module.exports = router;
