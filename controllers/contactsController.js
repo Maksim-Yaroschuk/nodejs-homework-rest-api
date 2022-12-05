@@ -1,4 +1,5 @@
 const { Contact } = require("../models/contactsModel");
+
 const { createNotFoundError } = require("../helpers");
 
 const getAllContacts = async (req, res, next) => {
@@ -25,6 +26,7 @@ const removeContactById = async (req, res, next) => {
   const { contactId } = req.params;
   const { _id } = req.user;
   const result = await Contact.findByIdAndDelete(contactId, { owner: _id });
+
   if (result) {
     return res.status(200).json({ message: `${result.name} deleted` });
   }
@@ -47,6 +49,7 @@ const updateContact = async (req, res, next) => {
   const result = await Contact.findByIdAndUpdate(contactId, req.body, {
     owner: _id,
   });
+
   if (result) {
     return res.status(200).json({ message: `${result.name} was updated` });
   }
@@ -60,6 +63,7 @@ const updateContactStatus = async (req, res, next) => {
   const updatedContact = await Contact.findByIdAndUpdate(
     contactId,
     { owner: _id, favorite },
+
     { new: true }
   );
   if (updatedContact) {
