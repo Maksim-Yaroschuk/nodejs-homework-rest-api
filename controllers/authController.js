@@ -2,15 +2,17 @@ const { User } = require("../models/usersModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
+const gravatar = require("gravatar")
 dotenv.config();
 
 const { JWT_SECRET } = process.env;
 
 const userSignup = async (req, res, next) => {
   const { email, password } = req.body;
+  const avatarURL = gravatar.url(email, {s: '200', r: 'pg', d: '404'});
   const salt = await bcrypt.genSalt();
   const hashedPassword = await bcrypt.hash(password, salt);
-  const user = new User({ email, password: hashedPassword });
+  const user = new User({ email, password: hashedPassword, avatarURL });
 
   try {
     await user.save();
