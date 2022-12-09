@@ -11,7 +11,6 @@ const auth = async (req, res, next) => {
   if (tokenType === "Bearer" && token) {
     const verifiedToken = jwt.verify(token, JWT_SECRET);
     const user = await User.findById(verifiedToken._id);
-    // console.log(user.id)
     if (!user || !user.token) {
       return res.status(401).json({ message: "Not authorized" });
     }
