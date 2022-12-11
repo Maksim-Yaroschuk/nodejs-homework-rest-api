@@ -5,6 +5,11 @@ const gravatar = require("gravatar");
 const jimp = require("jimp");
 const path = require("path");
 const fs = require("fs/promises");
+const { nanoid } = require("nanoid");
+const { createNotFoundError } = require("../helpers");
+const {
+  sendVerificationEmail,
+} = require("../routes/middleware/sendVerificationEmail");
 const dotenv = require("dotenv");
 dotenv.config();
 
@@ -15,10 +20,17 @@ const userSignup = async (req, res, next) => {
   const avatarURL = gravatar.url(email, { s: "200", r: "pg", d: "404" });
   const salt = await bcrypt.genSalt();
   const hashedPassword = await bcrypt.hash(password, salt);
-  const user = new User({ email, password: hashedPassword, avatarURL });
+  const verificationToken = nanoid();
+  const user = new User({
+    email,
+    password: hashedPassword,
+    avatarURL,
+    verificationToken,
+  });
 
   try {
     await user.save();
+    await sendVerificationEmail(email, verificationToken);
   } catch (error) {
     if (error.message.includes("duplicate key error collection")) {
       return res.status(409).json({ message: "Email in use" });
@@ -48,6 +60,9 @@ const userLogin = async (req, res, next) => {
   const isPasswordCorrect = await bcrypt.compare(password, user.password);
   if (!isPasswordCorrect) {
     return res.status(401).json({ message: "Email or password is wrong" });
+  }
+  if (!user.verify) {
+    return res.status(401).json({ message: "User not verified" });
   }
   const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: "15m" });
   user.token = token;
@@ -91,35 +106,46 @@ const userChangeAvatar = async (req, res, next) => {
   const newPath = path.join(__dirname, "../public/avatars", file.name);
   await fs.rename(file.path, newPath);
   user.avatarURL = "/avatars/" + file.name;
-  console.log(user)
   await User.findByIdAndUpdate(user._id, user);
   return res.status(201).json({
     avatarURL: user.avatarURL,
   });
 };
 
-const userVerify = async (req, res) => {
-    const { verificationToken } = req.params;
-    const user = await User.findOne({
-        verificationToken,
+const userVerify = async (req, res, next) => {
+  const { verificationToken } = req.params;
+  const user = await User.findOne({
+    verificationToken,
+  });
+  if (!user) {
+    return next(createNotFoundError());
+  }
+  if (!user.verify) {
+    await User.findByIdAndUpdate(user._id, {
+      verify: true,
+      verificationToken: null,
     });
-    // if (!user) {
-        // return res.status(404).json({ message: "User not found" });
-    // };
-    if (!user.verify) {
-        await User.findByIdAndUpdate(user._id, {
-            verify: true,
-            verificationToken: null,
-        });
-        return res.json({
-            message: "Verification successful",
-        });
-    };
-    if (user.verify) {
-        return res.json({
-            message: "Verification has already been passed",
-        });
-    };
+    return res.status(200).json({
+      message: "Verification successful",
+    });
+  }
+};
+
+const userRepeatVerify = async (req, res, next) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    return next(createNotFoundError());
+  }
+  if (user.verify) {
+    return res.status(400).json({
+      message: "Verification has already been passed",
+    });
+  }
+  await sendVerificationEmail(email, user.verificationToken);
+  return res.status(200).json({
+    message: "Verification email sent",
+  });
 };
 
 module.exports = {
@@ -129,5 +155,6 @@ module.exports = {
   userLogout,
   userCurrent,
   userChangeAvatar,
-  userVerify
+  userVerify,
+  userRepeatVerify,
 };
