@@ -98,6 +98,30 @@ const userChangeAvatar = async (req, res, next) => {
   });
 };
 
+const userVerify = async (req, res) => {
+    const { verificationToken } = req.params;
+    const user = await User.findOne({
+        verificationToken,
+    });
+    // if (!user) {
+        // return res.status(404).json({ message: "User not found" });
+    // };
+    if (!user.verify) {
+        await User.findByIdAndUpdate(user._id, {
+            verify: true,
+            verificationToken: null,
+        });
+        return res.json({
+            message: "Verification successful",
+        });
+    };
+    if (user.verify) {
+        return res.json({
+            message: "Verification has already been passed",
+        });
+    };
+};
+
 module.exports = {
   userSignup,
   getAllUsers,
@@ -105,4 +129,5 @@ module.exports = {
   userLogout,
   userCurrent,
   userChangeAvatar,
+  userVerify
 };

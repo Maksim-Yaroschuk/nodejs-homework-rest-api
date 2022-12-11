@@ -8,6 +8,7 @@ const {
   userLogout,
   userCurrent,
   userChangeAvatar,
+  userVerify,
 } = require("../../controllers/authController");
 
 const { tryCatchWrapper } = require("../../helpers");
@@ -23,5 +24,6 @@ authRouter.get("/logout", tryCatchWrapper(auth), tryCatchWrapper(userLogout));
 authRouter.get("/current", tryCatchWrapper(auth), tryCatchWrapper(userCurrent));
 authRouter.get("/", tryCatchWrapper(getAllUsers));
 authRouter.post("/avatars", tryCatchWrapper(auth), tryCatchWrapper(upload.single("avatar")), tryCatchWrapper(userChangeAvatar));
+authRouter.get("/verify/:verificationToken", tryCatchWrapper(userVerify));
 
 module.exports = authRouter;
