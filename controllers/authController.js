@@ -128,7 +128,7 @@ const userVerify = async (req, res, next) => {
     return res.status(200).json({
       message: "Verification successful",
     });
-  }
+  } return next();
 };
 
 const userRepeatVerify = async (req, res, next) => {
